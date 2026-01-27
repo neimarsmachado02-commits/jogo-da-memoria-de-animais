@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Memória dos Animais</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Login Screen -->
+        <div id="login-screen" class="screen">
+            <h1>Bem-vindo! 🎮</h1>
+            <p>Faça login ou cadastre-se para jogar</p>
+            <div class="auth-box">
+                <input type="text" id="login-username" placeholder="Usuário" maxlength="15">
+                <input type="password" id="login-password" placeholder="Senha">
+                <div class="auth-buttons">
+                    <button id="login-btn">Entrar</button>
+                    <button id="register-btn" class="secondary-btn">Cadastrar</button>
+                </div>
+            </div>
+            <div id="auth-message" class="error-msg"></div>
+        </div>
+
+        <div id="start-screen" class="screen" style="display: none;">
+            <h1>Olá, <span id="user-display"></span>! 🦁</h1>
+            <p>Preparado para desafiar sua memória?</p>
+            <div class="start-actions">
+                <button id="start-game-btn">Começar Partida</button>
+            </div>
+
+            <div class="ranking-container">
+                <h3>🏆 Top 5 Jogadores</h3>
+                <div class="ranking-controls">
+                    <button class="rank-filter active" data-level="easy">Fácil</button>
+                    <button class="rank-filter" data-level="medium">Médio</button>
+                    <button class="rank-filter" data-level="hard">Difícil</button>
+                </div>
+                <table id="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nome</th>
+                            <th>Tempo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Ranking rows here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-container" class="screen" style="display: none;">
+            <header>
+                <h1>Jogo da Memória</h1>
+                <div class="controls">
+                    <div class="difficulty-selector">
+                        <button class="diff-btn" data-level="easy">Fácil</button>
+                        <button class="diff-btn active" data-level="medium">Médio</button>
+                        <button class="diff-btn" data-level="hard">Difícil</button>
+                    </div>
+                    <div class="timer">Tempo: <span id="time">0</span>s</div>
+                    <button id="sound-toggle-btn" class="icon-btn">🔊</button>
+                    <button id="reset-btn">Reiniciar</button>
+                </div>
+            </header>
+
+            <main id="game-board" class="game-board">
+                <!-- Cards will be generated here by JavaScript -->
+            </main>
+        </div>
+
+        <audio id="bg-music" loop preload="auto">
+            <source src="musica.mp3" type="audio/mpeg">
+        </audio>
+
+        <div id="win-modal" class="modal">
+            <div class="modal-content">
+                <h2>Parabéns! 🎉</h2>
+                <p>Você completou o jogo em <strong id="final-time">0</strong> segundos!</p>
+
+                <div class="score-action">
+                    <button id="save-score-btn">Salvar Pontuação</button>
+                </div>
+                <div id="save-message"></div>
+
+                <div class="modal-ranking">
+                    <h3>🏆 Top Pontuações (Desta Dificuldade)</h3>
+                    <table id="modal-ranking-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nome</th>
+                                <th>Tempo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Ranking rows here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="modal-actions">
+                    <button id="play-again-btn">Jogar Novamente</button>
+                    <button id="change-player-btn">Trocar Jogador</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
