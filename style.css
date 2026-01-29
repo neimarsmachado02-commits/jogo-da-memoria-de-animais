@@ -618,16 +618,52 @@ h1 {
 }
 
 @media (max-width: 600px) {
+    body {
+        overflow-y: auto;
+        /* Enable scrolling on small screens */
+        padding: 1rem 0;
+        height: auto;
+        min-height: 100vh;
+        align-items: flex-start;
+        /* Start from top */
+    }
+
     .container {
-        padding: 1rem;
+        padding: 1.5rem;
+        margin: 1rem auto;
+        width: 90%;
+        max-width: 100%;
+        border-radius: 20px;
     }
 
     .game-board {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
+        grid-template-columns: repeat(4, 1fr);
+        /* Try to keep 4 cols */
+        gap: 8px;
+    }
+
+    /* Adjust for very small screens if needed */
+    @media (max-width: 360px) {
+        .game-board {
+            grid-template-columns: repeat(3, 1fr);
+        }
     }
 
     h1 {
         font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .logo-container {
+        font-size: 3rem;
+    }
+
+    .auth-box {
+        max-width: 100%;
+    }
+
+    .card-front .emoji {
+        font-size: 2.5rem;
+        /* Smaller emojis */
     }
 }
