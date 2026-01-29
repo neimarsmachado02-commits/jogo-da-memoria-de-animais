@@ -67,19 +67,30 @@ const levels = {
     hard: { pairs: 8, cols: 4 }
 };
 
-// Ranking Logic
-async function fetchRanking(difficulty) {
-    try {
-        const response = await fetch(`/api/ranking?difficulty=${difficulty}`);
-        const data = await response.json();
-        renderRanking(data);
-    } catch (error) {
-        console.error('Error fetching ranking:', error);
-    }
+// Ranking Logic (LocalStorage)
+function getLocalScores() {
+    return JSON.parse(localStorage.getItem('game_scores') || '[]');
+}
+
+function saveLocalScore(scoreData) {
+    const scores = getLocalScores();
+    scores.push(scoreData);
+    localStorage.setItem('game_scores', JSON.stringify(scores));
+}
+
+function fetchRanking(difficulty) {
+    // Simulate async if needed, but synchronous is fine for localStorage
+    const scores = getLocalScores();
+    const filtered = scores
+        .filter(s => s.difficulty === difficulty)
+        .sort((a, b) => a.time_taken - b.time_taken)
+        .slice(0, 5);
+
+    renderRanking(filtered);
 }
 
 function renderRanking(data) {
-    console.log('Dados do ranking recebidos:', data);
+    console.log('Dados do ranking (local) atualizados:', data);
 
     // Atualiza tabela da tela inicial
     if (rankingTableBody) {
@@ -122,8 +133,18 @@ function updateRankFilter(difficulty) {
     fetchRanking(difficulty);
 }
 
-// Auth Logic
-async function handleAuth(type) {
+// Auth Logic (LocalStorage)
+function getLocalUsers() {
+    return JSON.parse(localStorage.getItem('game_users') || '[]');
+}
+
+function saveLocalUser(user) {
+    const users = getLocalUsers();
+    users.push(user);
+    localStorage.setItem('game_users', JSON.stringify(users));
+}
+
+function handleAuth(type) {
     const username = authUsernameInput.value.trim();
     const password = authPasswordInput.value.trim();
 
@@ -132,42 +153,76 @@ async function handleAuth(type) {
         return;
     }
 
-    try {
-        const route = type === 'login' ? '/api/login' : '/api/register';
-        const response = await fetch(`${route}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
+    const users = getLocalUsers();
 
-        const data = await response.json();
+    if (type === 'register') {
+        const existing = users.find(u => u.username === username);
+        if (existing) {
+            authMessage.style.color = '#ff4757';
+            authMessage.textContent = 'Usuário já existe.';
+            return;
+        }
 
-        if (response.ok) {
-            authMessage.style.color = 'var(--accent-color)';
-            if (type === 'login') {
-                authMessage.textContent = 'Sucesso!';
-                currentPlayer = data.username;
-                currentUserId = data.userId;
-                userDisplay.textContent = currentPlayer;
-                console.log('Login bem-sucedido. Usuário atual:', currentPlayer);
-                setTimeout(() => {
-                    loginScreen.style.display = 'none';
-                    startScreen.style.display = 'flex';
-                    authMessage.textContent = '';
-                }, 500);
-            } else {
-                authMessage.textContent = 'Registrado! Entrando...';
-                setTimeout(() => handleAuth('login'), 1000);
-            }
+        const newUser = {
+            id: Date.now(),
+            username,
+            password
+        };
+        saveLocalUser(newUser);
+
+        authMessage.style.color = 'var(--accent-color)';
+        authMessage.textContent = 'Registrado! Entrando...';
+        setTimeout(() => {
+            // Auto login after register
+            loginSuccess(newUser);
+        }, 1000);
+
+    } else {
+        // Login
+        const user = users.find(u => u.username === username && u.password === password);
+        if (user) {
+            loginSuccess(user);
         } else {
             authMessage.style.color = '#ff4757';
-            authMessage.textContent = data.error || 'Erro na autenticação.';
+            authMessage.textContent = 'Usuário ou senha incorretos.';
         }
-    } catch (error) {
-        console.error('Erro na requisição handleAuth:', error);
-        authMessage.textContent = 'Erro de conexão.';
     }
 }
+
+function loginSuccess(user) {
+    authMessage.style.color = 'var(--accent-color)';
+    authMessage.textContent = 'Sucesso!';
+    currentPlayer = user.username;
+    currentUserId = user.id;
+    userDisplay.textContent = currentPlayer;
+
+    // Save session
+    localStorage.setItem('game_current_user', JSON.stringify(user));
+
+    setTimeout(() => {
+        loginScreen.style.display = 'none';
+        startScreen.style.display = 'flex';
+        authMessage.textContent = '';
+    }, 500);
+}
+
+// Auto-login check
+window.addEventListener('load', () => {
+    const savedUser = localStorage.getItem('game_current_user');
+    if (savedUser) {
+        try {
+            const user = JSON.parse(savedUser);
+            currentPlayer = user.username;
+            currentUserId = user.id;
+            userDisplay.textContent = currentPlayer;
+            loginScreen.style.display = 'none';
+            startScreen.style.display = 'flex';
+        } catch (e) {
+            console.error('Erro ao restaurar sessão', e);
+        }
+    }
+    fetchRanking('medium');
+});
 
 loginBtn.addEventListener('click', () => handleAuth('login'));
 registerBtn.addEventListener('click', () => handleAuth('register'));
@@ -334,40 +389,32 @@ function setDifficulty(level) {
     initGame();
 }
 
-async function saveScore() {
+// Save Score Logic (LocalStorage)
+function saveScore() {
     if (!currentPlayer) {
         saveMessage.textContent = 'Erro: Jogador não identificado.';
         return;
     }
 
-    try {
-        const response = await fetch('/api/score', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                userId: currentUserId,
-                name: currentPlayer,
-                difficulty: currentLevel,
-                time_taken: currentTime
-            })
-        });
+    const scoreData = {
+        userId: currentUserId,
+        name: currentPlayer,
+        difficulty: currentLevel,
+        time_taken: currentTime,
+        date: new Date().toISOString()
+    };
 
-        if (response.ok) {
-            console.log('Score salvo com sucesso:', currentPlayer, currentLevel, currentTime);
-            saveMessage.textContent = `Pontuação de ${currentPlayer} salva!`;
-            saveScoreBtn.disabled = true;
-            saveScoreBtn.textContent = 'Salvo!';
-            // Atualiza o ranking para a dificuldade atual para o usuário ver sua pontuação
-            updateRankFilter(currentLevel);
-        } else {
-            console.error('Falha ao salvar score:', response.status);
-            saveMessage.textContent = 'Erro ao salvar pontuação.';
-        }
+    try {
+        saveLocalScore(scoreData);
+        console.log('Score salvo localmente:', currentPlayer, currentLevel, currentTime);
+        saveMessage.textContent = `Pontuação de ${currentPlayer} salva!`;
+        saveScoreBtn.disabled = true;
+        saveScoreBtn.textContent = 'Salvo!';
+        // Atualiza o ranking para a dificuldade atual
+        updateRankFilter(currentLevel);
     } catch (error) {
-        console.error('Network error:', error);
-        saveMessage.textContent = 'Erro de conexão com o servidor.';
+        console.error('Erro ao salvar localmente:', error);
+        saveMessage.textContent = 'Erro ao salvar pontuação.';
     }
 }
 
@@ -431,7 +478,9 @@ logoutBtn.addEventListener('click', () => {
     authUsernameInput.value = '';
     authPasswordInput.value = '';
     authMessage.textContent = '';
+    localStorage.removeItem('game_current_user');
 });
 
 // Initial Fetch
-fetchRanking('medium');
+// Initial Fetch call handled in window.load
+
