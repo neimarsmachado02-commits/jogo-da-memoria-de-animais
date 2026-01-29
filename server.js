@@ -39,10 +39,12 @@ const db = new sqlite3.Database('game.db', (err) => {
 
         db.run(`CREATE TABLE IF NOT EXISTS scores (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
             name TEXT,
             difficulty TEXT,
             time_taken INTEGER,
-            date TEXT
+            date TEXT,
+            FOREIGN KEY (user_id) REFERENCES users (id)
         )`, (err) => {
             if (err) {
                 console.error('Error creating table', err);
@@ -124,23 +126,27 @@ app.post('/api/login', (req, res) => {
             return res.status(401).json({ error: 'Usuário ou senha incorretos' });
         }
         console.log(`Login bem-sucedido: ${username}`);
-        res.json({ message: 'Login realizado!', username: row.username });
+        res.json({
+            message: 'Login realizado!',
+            userId: row.id,
+            username: row.username
+        });
     });
 });
 
 // Save Score
 app.post('/api/score', (req, res) => {
-    const { name, difficulty, time_taken } = req.body;
-    console.log(`Tentativa de salvar score: ${name}, ${difficulty}, ${time_taken}s`);
+    const { userId, name, difficulty, time_taken } = req.body;
+    console.log(`Tentativa de salvar score para ID ${userId}: ${name}, ${difficulty}, ${time_taken}s`);
     const date = new Date().toISOString();
 
-    if (!name || !difficulty || !time_taken && time_taken !== 0) {
+    if (!userId || !name || !difficulty || !time_taken && time_taken !== 0) {
         console.log('Score falhou: Campos faltando');
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const stmt = db.prepare('INSERT INTO scores (name, difficulty, time_taken, date) VALUES (?, ?, ?, ?)');
-    stmt.run(name, difficulty, time_taken, date, function (err) {
+    const stmt = db.prepare('INSERT INTO scores (user_id, name, difficulty, time_taken, date) VALUES (?, ?, ?, ?, ?)');
+    stmt.run(userId, name, difficulty, time_taken, date, function (err) {
         if (err) {
             console.error('Erro ao salvar score BD:', err.message);
             return res.status(500).json({ error: 'Failed to save score' });

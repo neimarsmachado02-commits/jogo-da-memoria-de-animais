@@ -9,6 +9,8 @@ const userDisplay = document.getElementById('user-display');
 const startScreen = document.getElementById('start-screen');
 const gameContainer = document.getElementById('game-container');
 const startGameBtn = document.getElementById('start-game-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const exitGameBtn = document.getElementById('exit-game-btn');
 
 const gameBoard = document.getElementById('game-board');
 const resetBtn = document.getElementById('reset-btn');
@@ -39,6 +41,8 @@ let startTime;
 let gameActive = false;
 let currentTime = 0;
 let currentRankDifficulty = 'medium';
+let currentUserId = null;
+let currentPlayer = '';
 
 const animalsPool = [
     { name: 'Leão', emoji: '🦁' },
@@ -143,6 +147,7 @@ async function handleAuth(type) {
             if (type === 'login') {
                 authMessage.textContent = 'Sucesso!';
                 currentPlayer = data.username;
+                currentUserId = data.userId;
                 userDisplay.textContent = currentPlayer;
                 console.log('Login bem-sucedido. Usuário atual:', currentPlayer);
                 setTimeout(() => {
@@ -173,6 +178,7 @@ startGameBtn.addEventListener('click', () => {
         console.log('Iniciando jogo com o nome:', currentPlayer);
         startScreen.style.display = 'none';
         gameContainer.style.display = 'block';
+        startAudio(); // Garante que o áudio comece na interação do usuário
         initGame();
     } else {
         // Fallback caso algo dê errado no fluxo de login
@@ -341,6 +347,7 @@ async function saveScore() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+                userId: currentUserId,
                 name: currentPlayer,
                 difficulty: currentLevel,
                 time_taken: currentTime
@@ -404,6 +411,26 @@ diffBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         setDifficulty(btn.dataset.level);
     });
+});
+
+exitGameBtn.addEventListener('click', () => {
+    if (confirm('Tem certeza que deseja sair do jogo atual? Seu progresso será perdido.')) {
+        stopTimer();
+        gameActive = false;
+        gameContainer.style.display = 'none';
+        startScreen.style.display = 'flex';
+        // Reinicia a tela de início se necessário
+        fetchRanking(currentRankDifficulty);
+    }
+});
+
+logoutBtn.addEventListener('click', () => {
+    startScreen.style.display = 'none';
+    loginScreen.style.display = 'flex';
+    currentPlayer = '';
+    authUsernameInput.value = '';
+    authPasswordInput.value = '';
+    authMessage.textContent = '';
 });
 
 // Initial Fetch

@@ -15,7 +15,8 @@
     <div class="container">
         <!-- Login Screen -->
         <div id="login-screen" class="screen">
-            <h1>Bem-vindo! 🎮</h1>
+            <div class="logo-container">🐾</div>
+            <h1>Jogo da Memória dos Animais</h1>
             <p>Faça login ou cadastre-se para jogar</p>
             <div class="auth-box">
                 <input type="text" id="login-username" placeholder="Usuário" maxlength="15">
@@ -29,10 +30,13 @@
         </div>
 
         <div id="start-screen" class="screen" style="display: none;">
+            <div class="logo-container sm">🐾</div>
+            <h1 class="game-title-sm">Jogo da Memória</h1>
             <h1>Olá, <span id="user-display"></span>! 🦁</h1>
             <p>Preparado para desafiar sua memória?</p>
             <div class="start-actions">
                 <button id="start-game-btn">Começar Partida</button>
+                <button id="logout-btn" class="secondary-btn">Sair da Conta</button>
             </div>
 
             <div class="ranking-container">
@@ -70,6 +74,7 @@
                     <div class="timer">Tempo: <span id="time">0</span>s</div>
                     <button id="sound-toggle-btn" class="icon-btn">🔊</button>
                     <button id="reset-btn">Reiniciar</button>
+                    <button id="exit-game-btn" class="danger-btn">Sair</button>
                 </div>
             </header>
 
