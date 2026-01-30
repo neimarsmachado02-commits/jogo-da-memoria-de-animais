@@ -366,6 +366,7 @@ function showWinModal() {
     winModal.style.display = 'flex';
     fetchRanking(currentLevel); // Carrega o ranking no modal
     startConfetti();
+    stopMusic(); // Para a música quando o jogador vence
 }
 
 function setDifficulty(level) {
@@ -442,6 +443,7 @@ changePlayerBtn.addEventListener('click', () => {
     startScreen.style.display = 'none'; // Mudança para garantir que o login apareça
     loginScreen.style.display = 'flex';
     currentPlayer = '';
+    stopMusic(); // Garante que a música pare ao trocar de jogador
     fetchRanking(currentRankDifficulty); // Refresh ranking
 });
 
