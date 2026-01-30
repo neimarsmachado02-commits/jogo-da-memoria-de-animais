@@ -269,10 +269,7 @@ function initGame() {
     winModal.style.display = 'none';
     gameActive = true;
 
-    gameBoard.style.gridTemplateColumns = `repeat(${config.cols}, 1fr)`;
-    if (window.innerWidth < 600 && config.cols > 3) {
-        gameBoard.style.gridTemplateColumns = `repeat(3, 1fr)`;
-    }
+    updateGridColumns();
 
     cards.forEach((animal, index) => {
         const card = document.createElement('div');
@@ -375,6 +372,7 @@ function showWinModal() {
     finalTimeDisplay.textContent = currentTime;
     winModal.style.display = 'flex';
     fetchRanking(currentLevel); // Carrega o ranking no modal
+    startConfetti();
 }
 
 function setDifficulty(level) {
@@ -466,6 +464,7 @@ exitGameBtn.addEventListener('click', () => {
         gameActive = false;
         gameContainer.style.display = 'none';
         startScreen.style.display = 'flex';
+        stopMusic(); // Stop music when exiting game
         // Reinicia a tela de início se necessário
         fetchRanking(currentRankDifficulty);
     }
@@ -478,8 +477,86 @@ logoutBtn.addEventListener('click', () => {
     authUsernameInput.value = '';
     authPasswordInput.value = '';
     authMessage.textContent = '';
+    stopMusic(); // Stop music when logging out
     localStorage.removeItem('game_current_user');
 });
+
+function stopMusic() {
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+    audioStarted = false;
+}
+
+// Confetti & Responsive Logic
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+let confettiAnimationId;
+let particles = [];
+
+function resizeCanvas() {
+    if (canvas) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+}
+
+function updateGridColumns() {
+    if (!gameActive) return;
+    const config = levels[currentLevel];
+    if (gameBoard) {
+        gameBoard.style.gridTemplateColumns = `repeat(${config.cols}, 1fr)`;
+        if (window.innerWidth < 600 && config.cols > 3) {
+            gameBoard.style.gridTemplateColumns = `repeat(3, 1fr)`;
+        }
+        if (window.innerWidth < 400 && config.cols > 3) {
+            gameBoard.style.gridTemplateColumns = `repeat(3, 1fr)`;
+        }
+    }
+}
+
+window.addEventListener('resize', () => {
+    resizeCanvas();
+    updateGridColumns();
+});
+resizeCanvas(); // Init canvas size
+
+function createConfetti() {
+    particles = [];
+    const colors = ['#f1c40f', '#e67e22', '#e74c3c', '#9b59b6', '#3498db', '#2ecc71'];
+    for (let i = 0; i < 150; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            size: Math.random() * 10 + 5,
+            speedY: Math.random() * 3 + 2,
+            speedX: Math.random() * 2 - 1
+        });
+    }
+}
+
+function drawConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach((p) => {
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+        p.y += p.speedY;
+        p.x += p.speedX;
+        if (p.y > canvas.height) p.y = -10;
+        // Simple shimmy
+        p.x += Math.sin(p.y * 0.1);
+    });
+    confettiAnimationId = requestAnimationFrame(drawConfetti);
+}
+
+function startConfetti() {
+    createConfetti();
+    drawConfetti();
+    setTimeout(() => {
+        cancelAnimationFrame(confettiAnimationId);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }, 4000);
+}
 
 // Initial Fetch
 // Initial Fetch call handled in window.load
