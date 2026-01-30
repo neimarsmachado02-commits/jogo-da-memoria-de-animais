@@ -9,12 +9,12 @@
     --glass-border: rgba(255, 255, 255, 0.4);
     --font-main: 'Outfit', sans-serif;
 
-    /* Responsive spacing */
-    --spacing-xs: clamp(0.5rem, 2vw, 0.75rem);
-    --spacing-sm: clamp(0.75rem, 3vw, 1rem);
-    --spacing-md: clamp(1rem, 4vw, 1.5rem);
-    --spacing-lg: clamp(1.5rem, 5vw, 2.5rem);
-    --spacing-xl: clamp(2rem, 6vw, 3rem);
+    /* Responsive spacing - Improved for smaller screens */
+    --spacing-xs: clamp(0.4rem, 2vw, 0.75rem);
+    --spacing-sm: clamp(0.6rem, 3vw, 1rem);
+    --spacing-md: clamp(0.8rem, 4vw, 1.5rem);
+    --spacing-lg: clamp(1.2rem, 5vw, 2.5rem);
+    --spacing-xl: clamp(1.5rem, 6vw, 3rem);
 }
 
 body {
@@ -81,7 +81,7 @@ body::after {
     border: 1px solid rgba(255, 255, 255, 0.5);
     border-top: 1px solid rgba(255, 255, 255, 0.8);
     border-left: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: clamp(16px, 4vw, 32px);
+    border-radius: clamp(12px, 4vw, 32px);
     padding: var(--spacing-md);
     margin: var(--spacing-sm);
     box-shadow:
@@ -90,6 +90,8 @@ body::after {
     text-align: center;
     position: relative;
     z-index: 1;
+    max-height: 95vh;
+    overflow-y: auto;
 }
 
 header {
@@ -294,6 +296,28 @@ h1 {
 #start-game-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(108, 92, 231, 0.6);
+}
+
+.start-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    width: 100%;
+    max-width: 300px;
+    align-items: stretch;
+}
+
+#logout-btn {
+    padding: clamp(10px, 3vw, 12px);
+    border: 2px solid var(--primary-color);
+    border-radius: clamp(10px, 3vw, 12px);
+    font-size: clamp(0.95rem, 3vw, 1rem);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-height: 44px;
+    width: 100%;
+    font-family: var(--font-main);
 }
 
 .ranking-container {
@@ -689,6 +713,128 @@ h1 {
    RESPONSIVE BREAKPOINTS - Mobile First
    ============================================ */
 
+/* Extra Small phones (< 375px) - Critical base adjustments */
+@media (max-width: 374px) {
+    .container {
+        padding: clamp(0.75rem, 3vw, 1rem);
+        margin: 0.5rem;
+        border-radius: 12px;
+    }
+
+    h1 {
+        font-size: clamp(1.3rem, 6vw, 1.8rem);
+        margin-bottom: 0.5rem;
+    }
+
+    #login-screen h1 {
+        font-size: clamp(1.25rem, 5.5vw, 1.6rem);
+        line-height: 1.2;
+        max-width: 240px;
+    }
+
+    #login-screen p {
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .auth-box {
+        gap: 0.65rem;
+    }
+
+    .auth-box input {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        border-radius: 10px;
+    }
+
+    .auth-buttons button {
+        padding: 11px 14px;
+        font-size: 0.95rem;
+        min-height: 44px;
+    }
+
+    .game-board {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+
+    .card-front .emoji {
+        font-size: clamp(1.8rem, 10vw, 2.5rem);
+    }
+
+    .controls {
+        gap: 0.5rem;
+    }
+
+    .difficulty-selector {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .diff-btn {
+        padding: 0.45rem 0.7rem;
+        font-size: 0.85rem;
+        flex: 1;
+    }
+
+    .timer {
+        font-size: 0.95rem;
+        padding: 0.45rem 0.75rem;
+    }
+
+    #reset-btn,
+    #exit-game-btn {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        min-height: 40px;
+    }
+
+    .ranking-container {
+        padding: 0.75rem;
+        border-radius: 10px;
+    }
+
+    .ranking-container h3 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    #ranking-table th,
+    #ranking-table td {
+        padding: 6px 4px;
+        font-size: 0.85rem;
+    }
+
+    .modal-content {
+        padding: 1rem;
+        max-width: 92%;
+        border-radius: 12px;
+    }
+
+    .modal-content h2 {
+        font-size: 1.4rem;
+    }
+
+    .logo-container {
+        font-size: clamp(2rem, 10vw, 3rem);
+    }
+
+    #start-screen {
+        gap: 0.75rem;
+        padding: 0.5rem;
+    }
+
+    .start-actions {
+        width: 100%;
+    }
+
+    #start-game-btn,
+    #logout-btn {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
 /* Small phones (320px - 374px) - Base styles already optimized */
 
 /* Medium phones (375px - 479px) */
@@ -800,35 +946,82 @@ h1 {
 @media (max-height: 600px) and (orientation: landscape) {
     body {
         overflow-y: auto;
-        padding: var(--spacing-xs) 0;
+        padding: 0.5rem 0;
+        align-items: flex-start;
     }
 
     .container {
-        margin: var(--spacing-xs) auto;
-        padding: var(--spacing-sm);
+        margin: 0.5rem auto;
+        padding: 0.75rem;
+        max-height: 95vh;
     }
 
     .logo-container {
-        font-size: 2rem;
+        font-size: 1.5rem;
         margin-bottom: 0;
     }
 
     h1 {
-        font-size: 1.5rem;
-        margin-bottom: var(--spacing-xs);
-    }
-
-    .game-board {
-        gap: 8px;
-    }
-
-    .card-front .emoji {
-        font-size: 2rem;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
     }
 
     #start-screen {
-        gap: var(--spacing-sm);
-        padding: var(--spacing-xs);
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+
+    .ranking-container {
+        margin-top: 0.75rem;
+        padding: 0.65rem;
+        max-height: 180px;
+    }
+
+    .game-board {
+        gap: 6px;
+    }
+
+    .card-front .emoji {
+        font-size: 1.5rem;
+    }
+
+    .controls {
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .difficulty-selector {
+        padding: 0.2rem;
+    }
+
+    .diff-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .timer {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.75rem;
+    }
+
+    #reset-btn,
+    #exit-game-btn {
+        padding: 0.5rem 0.85rem;
+        font-size: 0.85rem;
+    }
+
+    .auth-box {
+        gap: 0.6rem;
+    }
+
+    .auth-box input {
+        padding: 8px 12px;
+        min-height: 38px;
+    }
+
+    .auth-buttons button {
+        padding: 8px 12px;
+        min-height: 38px;
     }
 }
 

@@ -206,21 +206,14 @@ function loginSuccess(user) {
     }, 500);
 }
 
-// Auto-login check
+// Auto-login check - DISABLED to always start at login screen
 window.addEventListener('load', () => {
-    const savedUser = localStorage.getItem('game_current_user');
-    if (savedUser) {
-        try {
-            const user = JSON.parse(savedUser);
-            currentPlayer = user.username;
-            currentUserId = user.id;
-            userDisplay.textContent = currentPlayer;
-            loginScreen.style.display = 'none';
-            startScreen.style.display = 'flex';
-        } catch (e) {
-            console.error('Erro ao restaurar sessão', e);
-        }
-    }
+    // Always start at login screen
+    loginScreen.style.display = 'flex';
+    startScreen.style.display = 'none';
+    gameContainer.style.display = 'none';
+
+    // Still fetch ranking for when user logs in
     fetchRanking('medium');
 });
 
